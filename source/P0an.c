@@ -138,7 +138,7 @@ void Greentable( int iw, int nx2, double dx,double z, double k,    double *G0r,d
 	double G0[2];
 	for(ix=0;ix<nx2;ix++){
 		x=(ix-nx+1)*dx;
-		greenfunction3( x, z, k,  G0);
+		greenfunction2( x, z, k,  G0);
 		//greenfunctionV( x, z, k,  G0);
 		G0r[ix]=G0[0];
 		G0i[ix]=G0[1];

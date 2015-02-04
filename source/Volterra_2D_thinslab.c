@@ -44,6 +44,9 @@ int main( int argc, char *argv[] )
 
   ret = fflush(file1);
 
+
+  fprintf(file1, "--!\tVelocity modeling initialization\n");
+  fprintf(file1, "--!\t                                \n");
   // velocity field
   double c0=1500; //reference velocity
   double* vel  = malloc( ndims*sizeof(double) );
@@ -53,6 +56,9 @@ int main( int argc, char *argv[] )
                                                                                                                                                                             
 
  
+
+  fprintf(file1, "--!\tsource initializaiton\n");
+  fprintf(file1, "--!\t \n");
    // time and frequency discretization parameter
   int   nt = 1000;        // number of steps
   double dt = 0.001;      // time step
@@ -73,6 +79,9 @@ int main( int argc, char *argv[] )
 
 
 
+   fprintf(file1, "--!\tWavefield extrapolation in frequency domain\n");
+   fprintf(file1, "--!\t \n");
+
    double* P1r = malloc(nz*nx*nw*sizeof(double) );
    double* P1i = malloc(nz*nx*nw*sizeof(double) );
    
@@ -80,6 +89,9 @@ int main( int argc, char *argv[] )
 
    nt=1001;
 
+
+   fprintf(file1, "--!\tTime domain data\n");
+   fprintf(file1, "--!\t \n");
    double* Pret = malloc(nz*nx*nt*sizeof(double) );
    
    Pwtot(nw,nx, nz,  dw, dx, dz, dt, nt,fren,P1r, P1i, Pret);
