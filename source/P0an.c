@@ -166,6 +166,7 @@ void P1num(FILE *filefprintf, int nw, int nx, int nz,double dx,double dz,double 
 	double* G0r = malloc(nx2*sizeof(double) );
    	double* G0i = malloc(nx2*sizeof(double) );
 
+	double cmin=c0,vmin=0,kne;
 	FILE* file2;  
   	char fname2[100];
   	
@@ -176,28 +177,34 @@ void P1num(FILE *filefprintf, int nw, int nx, int nz,double dx,double dz,double 
 		omega=fren[iw];
                 k=omega/c0;
 		P0numinit(  iw, nx, dx,  k, sourcefren, ps,  P0r,P0i);
-		Greentable( iw, nx2, dx, dz,  k,  G0r,G0i);
+		
 		for(ix=0;ix<nx;ix++){			
                 	P1r[iw*(nx*nz)+ix]=P0r[ix];
 			P1i[iw*(nx*nz)+ix]=P0i[ix];
 		}
 		
-		for(iz=1;iz<nz;iz++){	
-			Pincforward( iw, nx,  dx, nk, dk,  k,  iz, dz, P0r,P0i);
+		for(iz=1;iz<nz;iz++){
+			vmin=vpe[iz-1];
+			for(ix=1;ix<nx;ix++){
+				if(vpe[ix*nz+iz-1]<vmin){
+					vmin=vpe[ix*nz+iz-1];
+				}				
+			}
+			cmin=c0/sqrt(1-vmin);
+			kne=omega/cmin;		
+			Pincforward( iw, nx,  dx, nk, dk,  kne,  iz, dz, P0r,P0i);
+			Greentable( iw, nx2, dx, dz,  kne,  G0r,G0i);
 			for(ix=0;ix<nx;ix++){			
                 		P1r[iw*(nx*nz)+iz*nx+ix]=P0r[iz*nx+ix];
 				P1i[iw*(nx*nz)+iz*nx+ix]=P0i[iz*nx+ix];
 				P1tempr=0;
 				P1tempi=0;
 				for(ix2=0;ix2<nx;ix2++){
-					//x=(ix-ix2)*dx;
-					xindex=(ix-ix2)+(nx-1);
-					//greenfunction3( x, dz,  k,   G0);
-					//greenfunction2( x, dz,  k,   G0);
+					xindex=(ix-ix2)+(nx-1);				
 					G0[0]=	G0r[xindex];	
 					G0[1]=	G0i[xindex];			
-					P1tempr+=vpe[ix2*nz+iz-1]*(G0[0]*P1r[iw*(nx*nz)+(iz-1)*nx+ix]-G0[1]*P1i[iw*(nx*nz)+(iz-1)*nx+ix]);
-					P1tempi+=vpe[ix2*nz+iz-1]*(G0[0]*P1i[iw*(nx*nz)+(iz-1)*nx+ix]+G0[1]*P1r[iw*(nx*nz)+(iz-1)*nx+ix]);
+					P1tempr+=(vpe[ix2*nz+iz-1]-vmin)*(G0[0]*P1r[iw*(nx*nz)+(iz-1)*nx+ix]-G0[1]*P1i[iw*(nx*nz)+(iz-1)*nx+ix]);
+					P1tempi+=(vpe[ix2*nz+iz-1]-vmin)*(G0[0]*P1i[iw*(nx*nz)+(iz-1)*nx+ix]+G0[1]*P1r[iw*(nx*nz)+(iz-1)*nx+ix]);
 				}
 				P1tempr*=dx*dz*k*k;
 				P1tempi*=dx*dz*k*k;	
